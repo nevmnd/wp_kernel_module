@@ -43,8 +43,9 @@ static int __init test_init(void)
         printk(KERN_INFO "Counter address: 0x%px\n", &counter);
         while (counter < 3) {
             counter++;
-            msleep (5000);
+            msleep (10000);
             printk(KERN_INFO "Counter is: %d\n", counter);
+            msleep (10000);
         };
 	return 0;
 }
