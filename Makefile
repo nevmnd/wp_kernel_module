@@ -2,13 +2,11 @@ obj-m += watchpoint.o
 obj-m += test_wp.o
 
 all:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+	$(MAKE) -C $(KERNEL_SRC) M=$(SRC)
 
+modules_install:
+         $(MAKE) -C $(KERNEL_SRC) M=$(SRC) modules_install
 clean:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
-
-test:
-	sudo dmesg -C
-	sudo insmod chrdev.ko address=0x12345
-	sudo rmmod chrdev.ko
-	dmesg
+	rm -f *.o *~ core .depend .*.cmd *.mod.c
+	rm -f Module.markers Module.symvers modules.order
+	rm -rf .tmp_versions Modules.symvers
