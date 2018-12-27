@@ -1,5 +1,6 @@
 obj-m += watchpoint.o
-obj-m += test_wp.o
+
+SRC := $(shell pwd)
 
 all:
 	$(MAKE) -C $(KERNEL_SRC) M=$(SRC)
