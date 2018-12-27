@@ -6,7 +6,7 @@
 #include <linux/kthread.h>
 #include <linux/delay.h>
 
-static u64 address = 0, old_address = 0;
+static u32 address = 0, old_address = 0;
 struct perf_event * __percpu *wp_hbp;
 static struct task_struct *addr_thread;
 static char param_buf[128];
@@ -18,7 +18,7 @@ module_param_string(address, param_buf, sizeof(param_buf), 0664);
 
 static ssize_t store_value(struct kobject *kobj, struct kobj_attribute *attr, const char *buf, size_t count)
 {
-    kstrtou64(buf, 0, &address);
+    kstrtou32(buf, 0, &address);
     printk(KERN_INFO "Watchpoint address from /sys/kernel/watchpoint/address: 0x%llx\n", address);
     return count;
 }
@@ -94,7 +94,7 @@ static int __init wp_init(void)
     int err;
     
     printk(KERN_INFO "Loading watchpoint module...\n");
-    kstrtou64(param_buf, 0, &address);
+    kstrtou32(param_buf, 0, &address);
     //if (address)
     //    printk(KERN_INFO "Watchpoint address from module params: 0x%llx\n", address);
 
