@@ -19,7 +19,7 @@ module_param_string(address, param_buf, sizeof(param_buf), 0664);
 static ssize_t store_value(struct kobject *kobj, struct kobj_attribute *attr, const char *buf, size_t count)
 {
     kstrtou32(buf, 0, &address);
-    printk(KERN_INFO "Watchpoint address from /sys/kernel/watchpoint/address: 0x%llx\n", address);
+    printk(KERN_INFO "Watchpoint address from /sys/kernel/watchpoint/address: 0x%lx\n", address);
     return count;
 }
 
@@ -41,7 +41,7 @@ static void wp_hbp_handler(struct perf_event *bp,
 			       struct perf_sample_data *data,
 			       struct pt_regs *regs)
 {
-	printk(KERN_INFO "0x%llx value is changed\n", address);
+	printk(KERN_INFO "0x%lx value is changed\n", address);
 	//dump_stack();
 	//printk(KERN_INFO "Dump stack from wp_hbp_handler\n");
 }
@@ -61,7 +61,7 @@ static int hbp_init(void)
 	return 1;
     }
     
-    printk(KERN_INFO "Breakpoint for 0x%llx access installed\n", address);
+    printk(KERN_INFO "Breakpoint for 0x%lx access installed\n", address);
     return 0;
  
 }
@@ -71,7 +71,7 @@ static int addr_handler(void *data)
     while(1) {
         if (old_address != address) {
             old_address = address;
-            printk(KERN_INFO "Watchpoint address: 0x%llx\n", address);
+            printk(KERN_INFO "Watchpoint address: 0x%lx\n", address);
             if (reg_hbp) {
                 unregister_wide_hw_breakpoint(wp_hbp);
                 reg_hbp = 0;
@@ -122,7 +122,7 @@ static void __exit wp_exit(void)
 	kobject_put(wp_kobj);
         unregister_wide_hw_breakpoint(wp_hbp);
         kthread_stop(addr_thread);
-	printk(KERN_INFO "Breakpoint for 0x%llx uninstalled\n", address);
+	printk(KERN_INFO "Breakpoint for 0x%lx uninstalled\n", address);
 	printk(KERN_INFO "Unloading watchpoint...\n");
 }
 
