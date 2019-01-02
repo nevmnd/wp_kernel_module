@@ -11,7 +11,7 @@ static int test_handler(void *data)
 {
     while (counter < 5) {
         counter++;
-        msleep (10000);
+        msleep (20000);
         printk(KERN_INFO "Counter is: %u\n", counter);
     };
     return 0;
