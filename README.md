@@ -68,9 +68,9 @@ Let's unload test_wp and load it again:
 $ rmmod test_wp
 $ insmod /lib/modules/kernel/extra/test_wp.ko
 ```
-Variable "count" got another address. We will pass this address to watchpoin module:
+Variable "count" got another address. We will pass this address to watchpoint module:
 ```
-$ echo "0x11111112" > /sys/kernel/module/watchpoint/address
+$ echo "0x11111112" > /sys/kernel/watchpoint/address
 ```
 If test run right, unload modules and shut down machine:
 ```
