@@ -43,11 +43,11 @@ User: root, password: 123.
 $ runqemu qemux86
 ```
 There are two modules in this project: watchpoint.ko and test_wp.ko. 
-watchpoint.ko get an address of memory as a parameter and when this memory area read or written, it writes appropriate message to system log. Another way to pass address to module is to write it to /sys/kernel/watchpoint/address.
+watchpoint.ko get an address of memory as a parameter and when this memory area read or written, it writes appropriate message to system log. Another way to pass address is through /sys to /sys/kernel/watchpoint/address.
 test_wp.ko run with no parameters. It has internal variable "count", that ticks every 20 seconds. After start module writes appropriate message with address of "count" to system log.
 Now let's start test_wp:
 ```
-$ insmod /lib/modules/kernel/extra/test_wp.ko
+$ insmod /lib/modules/4.8.26-yocto-standard/extra/test_wp.ko
 ```
 Output of qemu should say something like that:
 ```
@@ -56,7 +56,7 @@ Counter address: 0x11111111
 ```
 Now we'll load watchpoint module:
 ```
-$ insmod /lib/modules/kernel/extra/watchpoint.ko address = 0x11111111
+$ insmod /lib/modules/4.8.26-yocto-standard/extra/watchpoint.ko address = "0x11111111"
 ```
 When "count" ticks, watchpoint should give a message:
 ```
@@ -66,9 +66,9 @@ We can check that watchpoint module works fine by time marks in system log.
 Let's unload test_wp and load it again:
 ```
 $ rmmod test_wp
-$ insmod /lib/modules/kernel/extra/test_wp.ko
+$ insmod /lib/modules/4.8.26-yocto-standard/extra/test_wp.ko
 ```
-Variable "count" got another address. We will pass this address to watchpoint module:
+Variable "count" got another address. We will pass this address to watchpoint module through /sys:
 ```
 $ echo "0x11111112" > /sys/kernel/watchpoint/address
 ```
