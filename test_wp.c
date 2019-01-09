@@ -9,7 +9,7 @@ static struct task_struct *test_thread;
 
 static int test_handler(void *data)
 {
-    while (counter < 5) {
+    while (!kthread_should_stop()) {
         counter++;
         msleep (20000);
         printk(KERN_INFO "Counter is: %u\n", counter);
@@ -23,7 +23,6 @@ static int __init test_init(void)
     int err;
 	
     printk(KERN_INFO "Loading test_wp module...\n");
-    //probably %p
     printk(KERN_INFO "Counter address: 0x%px\n", &counter);
 
     test_thread = kthread_create(test_handler, NULL, "test_handler");
@@ -40,6 +39,7 @@ static int __init test_init(void)
 
 static void __exit test_exit(void)
 {
+        kthread_stop(test_thread);
 	printk(KERN_INFO "Unloading test_wp...\n");
 }
 
@@ -47,5 +47,5 @@ module_init(test_init);
 module_exit(test_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Chestyunin Danil <nevmnd@gmail.com>");
-MODULE_DESCRIPTION("watchpoint tester");
+MODULE_AUTHOR("Chestyunin Danil <danil.chest@gmail.com>");
+MODULE_DESCRIPTION("Watchpoint module tester");

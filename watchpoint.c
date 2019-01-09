@@ -23,13 +23,11 @@ static ssize_t store_value(struct kobject *kobj, struct kobj_attribute *attr, co
     return count;
 }
 
-// register function to attribute
 static struct kobj_attribute wp_attribute = __ATTR(address, 0664, NULL, store_value);
 
-// put attribute to attribute group
 static struct attribute *attrs[] = {
     &wp_attribute.attr,
-    NULL,   /* NULL terminate the list*/
+    NULL,
 };
 static struct attribute_group  reg_attr_group = {
     .attrs = attrs,
@@ -43,7 +41,6 @@ static void wp_hbp_handler(struct perf_event *bp,
 {
 	printk(KERN_INFO "0x%lx value is changed\n", address);
 	//dump_stack();
-	//printk(KERN_INFO "Dump stack from wp_hbp_handler\n");
 }
 
 static int hbp_init(void)
@@ -57,7 +54,7 @@ static int hbp_init(void)
     
     wp_hbp = register_wide_hw_breakpoint(&attr, wp_hbp_handler, NULL);
     if (IS_ERR((void __force *)wp_hbp)) {
-        printk(KERN_INFO "Breakpoint registration failed\n");
+        printk(KERN_INFO "Breakpoint registration failed. Wrong address or unable to register\n");
 	return 1;
     }
     
@@ -68,7 +65,7 @@ static int hbp_init(void)
 
 static int addr_handler(void *data)
 {
-    while(1) {
+    while(!kthread_should_stop()) {
         if (old_address != address) {
             old_address = address;
             printk(KERN_INFO "Watchpoint address: 0x%lx\n", address);
@@ -76,14 +73,9 @@ static int addr_handler(void *data)
                 unregister_wide_hw_breakpoint(wp_hbp);
                 reg_hbp = 0;
             } 
-            if (hbp_init())
-                return 1;
-            else
+            if (!hbp_init())
                 reg_hbp = 1;
-
         }
-        if(kthread_should_stop())
-            break;
         msleep (3000);
     }
     return 0;
@@ -95,8 +87,7 @@ static int __init wp_init(void)
     
     printk(KERN_INFO "Loading watchpoint module...\n");
     kstrtou32(param_buf, 0, &address);
-    //if (address)
-    //    printk(KERN_INFO "Watchpoint address from module params: 0x%llx\n", address);
+    printk(KERN_INFO "Watchpoint address: 0x%lx\n", address);
 
     wp_kobj = kobject_create_and_add("watchpoint", kernel_kobj);
     if (!wp_kobj)
@@ -120,9 +111,11 @@ static int __init wp_init(void)
 static void __exit wp_exit(void)
 {
 	kobject_put(wp_kobj);
-        unregister_wide_hw_breakpoint(wp_hbp);
+        if (reg_hbp){
+            unregister_wide_hw_breakpoint(wp_hbp);
+            printk(KERN_INFO "Breakpoint for 0x%lx uninstalled\n", address);
+        }
         kthread_stop(addr_thread);
-	printk(KERN_INFO "Breakpoint for 0x%lx uninstalled\n", address);
 	printk(KERN_INFO "Unloading watchpoint...\n");
 }
 
@@ -130,5 +123,5 @@ module_init(wp_init);
 module_exit(wp_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Chestyunin Danil <nevmnd@gmail.com>");
-MODULE_DESCRIPTION("custom address watchpoint backtrace");
+MODULE_AUTHOR("Chestyunin Danil <danil.chest@gmail.com>");
+MODULE_DESCRIPTION("Backtrace for custom address watchpoint module");
