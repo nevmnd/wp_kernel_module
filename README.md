@@ -43,7 +43,7 @@ User: root, password: 123.
 $ runqemu qemux86
 ```
 There are two modules in this project: watchpoint.ko and test_wp.ko. 
-watchpoint.ko get an address of memory as a parameter and when this memory area read or written, it writes appropriate message to system log. Another way to pass address to module is to write it to /sys/kernel/modules/watchpoint/address.
+watchpoint.ko get an address of memory as a parameter and when this memory area read or written, it writes appropriate message to system log. Another way to pass address to module is to write it to /sys/kernel/watchpoint/address.
 test_wp.ko run with no parameters. It has internal variable "count", that ticks every 20 seconds. After start module writes appropriate message with address of "count" to system log.
 Now let's start test_wp:
 ```
